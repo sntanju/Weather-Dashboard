@@ -124,6 +124,7 @@
 
             userSearched = true; // Ensure flag is set
             updateWeatherUI(data, true); // Pass `true` for user search
+            updateWindy(data.coord.lat, data.coord.lon);
         })
         .catch(error => console.error('Error fetching weather:', error));
 }
@@ -143,7 +144,7 @@
         weatherContainer.innerHTML = `
             <div class="bg-white p-6 rounded-xl shadow-xl">
                 <p class="text-center text-gray-800 mb-4 font-semibold">${isSearch ? 'Weather of Your Searched Location' : 'Weather of Your Current Location'}</p>
-                <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">${weather.name}</h2>
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">${weather.name}, ${weather.sys.country}</h2>
                 <div class="flex justify-center mb-4">
                     <img src="http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png" alt="Weather Icon" class="w-20 h-20">
                 </div>
@@ -177,6 +178,10 @@
             </div>
         `;
     }
+
+    function updateWindy(lat, lon) {
+         document.getElementById('windyFrame').src = `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&zoom=5&level=surface&overlay=wind&menu=true&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1`;
+     }
 });
 
 
