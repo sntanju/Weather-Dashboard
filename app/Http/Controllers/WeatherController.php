@@ -19,43 +19,47 @@ class WeatherController extends Controller
     }
 
     public function getWeather(Request $request)
-    {
-        $city = $request->input('city');
-        $apiKey = env('WEATHER_API_KEY');
-    
-        if ($city) {
-            // Fetch weather for searched city
-            $response = Http::get("http://api.openweathermap.org/data/2.5/weather", [
-                'q' => $city,
-                'appid' => $apiKey,
-                'units' => 'metric',
-            ]);
-        } else {
-            // If no city, fallback to user coordinates
-            $lat = $request->input('lat', 23.8103);
-            $lon = $request->input('lon', 90.4125);
+{
+    try {
+        $lat = $request->query('lat');
+        $lon = $request->query('lon');
+        $city = $request->query('city');
 
-            $response = Http::get("http://api.openweathermap.org/data/2.5/weather", [
-                'lat' => $lat,
-                'lon' => $lon,
-                'appid' => $apiKey,
-                'units' => 'metric',
-            ]);
+        $apiKey = env('WEATHER_API_KEY');
+        if (!$apiKey) {
+            return response()->json(['error' => 'API key is missing'], 500);
         }
+
+        // If lat and lon are not provided, fall back to city search
+        if ($lat && $lon) {
+            $url = "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric";
+        } elseif ($city) {
+            $url = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric";
+        } else {
+            return response()->json(['error' => 'City or Geolocation data is required'], 400);
+        }
+
+        Log::info("Fetching weather from URL: $url");
+
+        //$response = Http::get($url);
+        $response = Http::withoutVerifying()->get($url);
+
 
         if ($response->failed()) {
-            return response()->json(['error' => 'City not found or API failed'], 404);
+            Log::error('Weather API Response Error:', ['status' => $response->status(), 'body' => $response->body()]);
+            return response()->json([
+                'error' => 'Failed to fetch weather data',
+                'details' => $response->json(),
+            ], $response->status());
         }
 
-        $weather = $response->json();
-        Log::info('Weather API Response:', $weather);
-
-        // Ensure latitude & longitude are included
-        $lat = $weather['coord']['lat'];
-        $lon = $weather['coord']['lon'];
-
-        return view('weather.index', compact('weather', 'lat', 'lon'));
+        return response()->json($response->json());
+    } catch (\Exception $e) {
+        Log::error('Weather API Error: ' . $e->getMessage());
+        return response()->json(['error' => 'Internal Server Error', 'details' => $e->getMessage()], 500);
     }
+}
+
 
     public function getCurrentWeather(Request $request)
     {
