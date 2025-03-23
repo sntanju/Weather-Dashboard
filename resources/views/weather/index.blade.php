@@ -6,6 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @vite('resources/css/app.css')
     <title>Weather Dashboard</title>
+
+    <style>
+    .loader {
+        border-width: 4px;
+        border-radius: 50%;
+        border-color: transparent;
+        border-top-color:rgba(52, 111, 220, 0.55);
+        border-right-color: rgba(52, 206, 220, 0.57); 
+        border-bottom-color: rgba(52, 220, 74, 0.64); 
+        border-left-color: transparent;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
 </head>
 
 <body class="bg-gradient-to-r from-blue-400 to-blue-700 font-sans antialiased min-h-screen flex flex-col items-center p-4">
@@ -37,7 +56,10 @@
     
             <!-- Weather Result (left Side) -->
             <div id="weather-container" class="bg-white p-6 rounded-xl shadow-md">
-
+                <div id="loader" class="flex justify-center items-center w-full h-[500px]">
+                    <div class="loader animate-spin rounded-full border-t-4 border-blue-500 border-solid w-15 h-15"> </div>
+                    
+                </div>
             </div>
 
             <!-- Windy.com iframe (Right Side) -->
@@ -105,6 +127,7 @@
     }
 
     console.log(`Fetching weather for: ${city}`);
+    document.getElementById('loader');
 
     // Use city search directly instead of relying on geolocation
     fetch(`/api/weather?city=${city}`)  // Make sure your backend accepts city query
