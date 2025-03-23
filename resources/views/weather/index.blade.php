@@ -9,7 +9,7 @@
 
     <style>
     .loader {
-        border-width: 4px;
+        border-width: 8px;
         border-radius: 50%;
         border-color: transparent;
         border-top-color:rgba(52, 111, 220, 0.55);
@@ -55,16 +55,16 @@
         <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-7xl"> 
     
             <!-- Weather Result (left Side) -->
-            <div id="weather-container" class="bg-white p-6 rounded-xl shadow-md">
-                <div id="loader" class="flex justify-center items-center w-full h-[500px]">
+            <div id="weather-container" class="bg-white  rounded-xl shadow-md">
+                <div id="loader" class="flex justify-center items-center w-full h-[650px]">
                     <div class="loader animate-spin rounded-full border-t-4 border-blue-500 border-solid w-15 h-15"> </div>
                     
                 </div>
             </div>
 
             <!-- Windy.com iframe (Right Side) -->
-            <div class="bg-white p-4 rounded-xl shadow-md">
-                <iframe id="windyFrame" class="w-full h-[500px]"
+            <div class="bg-white p-2 rounded-xl shadow-md">
+                <iframe id="windyFrame" class="w-full h-[650px]"
                     src="https://embed.windy.com/embed2.html?lat={{ $lat }}&lon={{ $lon }}&zoom=5&level=surface&overlay=wind&menu=true&message=true&marker=true&calendar=now&pressure=true&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"
                     frameborder="0">
                 </iframe>
@@ -165,7 +165,7 @@
         }
 
         weatherContainer.innerHTML = `
-            <div class="bg-white p-6 rounded-xl shadow-xl">
+            <div class="bg-white p-3 rounded-xl shadow-xl">
                 <p class="text-center text-gray-800 mb-4 font-semibold">${isSearch ? 'Weather of Your Searched Location' : 'Weather of Your Current Location'}</p>
                 <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">${weather.name}, ${weather.sys.country}</h2>
                 <div class="flex justify-center mb-4">
@@ -175,27 +175,39 @@
                 <div class="grid grid-cols-3 gap-4 text-lg text-gray-700 mt-6">
                     <div class="bg-gray-100 p-4 rounded-lg text-center">
                         <p class="font-semibold">🌡 Temperature</p>
-                        <p>${weather.main.temp}°C</p>
+                        <p>${weather.main.temp}°C / ${((weather.main.temp * 9/5) + 32).toFixed(1)}°F</p>
                     </div>
                     <div class="bg-gray-100 p-4 rounded-lg text-center">
                         <p class="font-semibold">🌡 Feels Like</p>
-                        <p>${weather.main.feels_like}°C</p>
+                        <p>${weather.main.feels_like}°C / ${((weather.main.feels_like * 9/5) + 32).toFixed(1)}°F</p>
                     </div>
                     <div class="bg-gray-100 p-4 rounded-lg text-center">
                         <p class="font-semibold">💧 Humidity</p>
-                        <p>${weather.main.humidity}%</p>
+                        <p>${weather.main.humidity}% / Dew Point: ${weather.main.dew_point ?? 'N/A'}°C</p>
                     </div>
                     <div class="bg-gray-100 p-4 rounded-lg text-center">
                         <p class="font-semibold">🌬 Wind Speed</p>
-                        <p>${weather.wind.speed} m/s</p>
+                        <p>${weather.wind.speed} m/s / ${(weather.wind.speed * 3.6).toFixed(1)} km/h</p>
                     </div>
                     <div class="bg-gray-100 p-4 rounded-lg text-center">
-                        <p class="font-semibold">🌅 Sunrise</p>
-                        <p>${new Date(weather.sys.sunrise * 1000).toLocaleTimeString()}</p>
+                        <p class="font-semibold">🌅 Sunrise & Sunset</p>
+                        <p>${new Date(weather.sys.sunrise * 1000).toLocaleTimeString()} / ${new Date(weather.sys.sunset * 1000).toLocaleTimeString()}</p>
                     </div>
                     <div class="bg-gray-100 p-4 rounded-lg text-center">
                         <p class="font-semibold">🌊 Sea Level</p>
-                        <p>${weather.main.sea_level ?? 'N/A'} hPa</p>
+                        <p>${weather.main.sea_level ?? 'N/A'} hPa / ${weather.main.pressure} hPa</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="font-semibold">☁ Cloudiness</p>
+                        <p>${weather.clouds.all}% / Visibility: ${(weather.visibility / 1000).toFixed(1)} km</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                       <p class="font-semibold">🌧 Precipitation (Last 1hr)</p>
+                       <p>${weather.rain?.["1h"] ?? weather.snow?.["1h"] ?? '0'} mm</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="font-semibold">🌬 Wind Gust</p>
+                        <p>${weather.wind.gust ? weather.wind.gust + ' m/s' : 'N/A'} / Direction: ${weather.wind.deg}°</p>
                     </div>
                 </div>
             </div>
