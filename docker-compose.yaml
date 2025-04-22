@@ -1,0 +1,29 @@
+version: "3"
+networks:
+  application:
+    driver: bridge
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-weather-app
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+      - ./database/database.sqlite:/app/database/database.sqlite
+    working_dir: /app
+    environment:
+      - APP_ENV=local
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=database/database.sqlite
+    networks:
+      - application
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - |
+        composer install
+        php artisan migrate
+        php artisan serve --host=0.0.0.0 --port=8000
+  
